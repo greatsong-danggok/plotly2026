@@ -332,14 +332,15 @@ for idx in order:
     ai_name, score = sorted_ai[idx]
     medal_class = ["gold", "silver", "bronze"][idx]
     podium_class = f"podium-{idx+1}"
-    podium_html += f"""
-    <div class="podium-item">
-        <div class="podium-avatar {medal_class}">{rank_emojis[idx]}</div>
-        <div class="podium-name" style="color:{rank_colors_name[idx]}">{ai_name}</div>
-        <div class="podium-votes">{score}pts · 1위 {first_counts.get(ai_name, 0)}표</div>
-        <div class="podium-base {podium_class}">{idx+1}</div>
-    </div>
-    """
+    votes = int(first_counts.get(ai_name, 0))
+    podium_html += (
+        f'<div class="podium-item">'
+        f'<div class="podium-avatar {medal_class}">{rank_emojis[idx]}</div>'
+        f'<div class="podium-name" style="color:{rank_colors_name[idx]}">{ai_name}</div>'
+        f'<div class="podium-votes">{score}pts &middot; 1위 {votes}표</div>'
+        f'<div class="podium-base {podium_class}">{idx+1}</div>'
+        f'</div>'
+    )
 podium_html += '</div>'
 st.markdown(podium_html, unsafe_allow_html=True)
 
@@ -348,17 +349,17 @@ lb_html = '<div class="leaderboard">'
 for idx, (ai_name, score) in enumerate(sorted_ai):
     pct = (score / max_score) * 100
     bar_color = COLORS[ai_name]
-    lb_html += f"""
-    <div class="lb-row rank-{idx+1}">
-        <div class="lb-rank r{idx+1}">{rank_emojis[idx]}</div>
-        <div class="lb-icon">{AI_EMOJI[ai_name]}</div>
-        <div class="lb-name">{ai_name}</div>
-        <div class="lb-bar-bg">
-            <div class="lb-bar-fill" style="width:{pct}%; background:linear-gradient(90deg, {bar_color}, {bar_color}aa);"></div>
-        </div>
-        <div class="lb-score">{score}pts</div>
-    </div>
-    """
+    lb_html += (
+        f'<div class="lb-row rank-{idx+1}">'
+        f'<div class="lb-rank r{idx+1}">{rank_emojis[idx]}</div>'
+        f'<div class="lb-icon">{AI_EMOJI[ai_name]}</div>'
+        f'<div class="lb-name">{ai_name}</div>'
+        f'<div class="lb-bar-bg">'
+        f'<div class="lb-bar-fill" style="width:{pct}%; background:linear-gradient(90deg, {bar_color}, {bar_color}aa);"></div>'
+        f'</div>'
+        f'<div class="lb-score">{score}pts</div>'
+        f'</div>'
+    )
 lb_html += '</div>'
 st.markdown(lb_html, unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
@@ -523,14 +524,14 @@ st.markdown('<div class="section-title">🎮 PLAYERS</div>', unsafe_allow_html=T
 chips_html = '<div class="voter-grid">'
 for _, row in df.iterrows():
     dot_color = SCHOOL_DOT[row["학교"]]
-    chips_html += f"""
-    <div class="voter-chip">
-        <span class="school-dot" style="background:{dot_color};"></span>
-        <span>{row['이름']}</span>
-        <span style="color:#666;">|</span>
-        <span>{AI_EMOJI[row['1위']]} {row['1위']}</span>
-    </div>
-    """
+    chips_html += (
+        f'<div class="voter-chip">'
+        f'<span class="school-dot" style="background:{dot_color};"></span>'
+        f'<span>{row["이름"]}</span>'
+        f'<span style="color:#666;">|</span>'
+        f'<span>{AI_EMOJI[row["1위"]]} {row["1위"]}</span>'
+        f'</div>'
+    )
 chips_html += '</div>'
 st.markdown(chips_html, unsafe_allow_html=True)
 
