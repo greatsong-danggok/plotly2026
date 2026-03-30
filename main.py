@@ -344,6 +344,123 @@ for idx in order:
 podium_html += '</div>'
 st.markdown(podium_html, unsafe_allow_html=True)
 
+# 🎆 폭죽 효과 (클릭 트리거)
+import streamlit.components.v1 as components
+
+confetti_html = """
+<div style="text-align:center; margin: 1rem 0 0.5rem 0;">
+<button id="confettiBtn" style="
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.7rem 2rem;
+    border: 2px solid #f9d423;
+    border-radius: 30px;
+    background: linear-gradient(135deg, rgba(249,212,35,0.15), rgba(255,78,80,0.15));
+    color: #f9d423;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+">🎆 CELEBRATE! 🎆</button>
+</div>
+<canvas id="confettiCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;"></canvas>
+<script>
+(function(){
+    const canvas = document.getElementById('confettiCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animId = null;
+    const colors = ['#f9d423','#ff4e50','#E07B39','#4285F4','#10A37F','#EC4899','#6366F1','#fff'];
+
+    function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+        constructor(x, y, type){
+            this.x = x; this.y = y; this.type = type;
+            const angle = Math.random() * Math.PI * 2;
+            const speed = type === 'firework' ? (Math.random() * 8 + 4) : (Math.random() * 3 + 1);
+            this.vx = Math.cos(angle) * speed;
+            this.vy = type === 'firework' ? (Math.sin(angle) * speed) : (-Math.random() * 5 - 3);
+            this.size = type === 'firework' ? (Math.random() * 3 + 1.5) : (Math.random() * 8 + 4);
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+            this.alpha = 1;
+            this.decay = type === 'firework' ? (Math.random() * 0.015 + 0.008) : (Math.random() * 0.008 + 0.003);
+            this.gravity = type === 'firework' ? 0.06 : 0.04;
+            this.rotation = Math.random() * 360;
+            this.rotSpeed = (Math.random() - 0.5) * 8;
+            this.shape = Math.random() > 0.5 ? 'rect' : 'circle';
+            this.wobble = Math.random() * 10;
+            this.wobbleSpeed = Math.random() * 0.1 + 0.02;
+        }
+        update(){
+            this.vy += this.gravity;
+            this.x += this.vx + Math.sin(this.wobble) * 0.5;
+            this.y += this.vy;
+            this.wobble += this.wobbleSpeed;
+            this.alpha -= this.decay;
+            this.rotation += this.rotSpeed;
+            if(this.type !== 'firework'){ this.vx *= 0.99; }
+        }
+        draw(){
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, this.alpha);
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation * Math.PI / 180);
+            ctx.fillStyle = this.color;
+            if(this.shape === 'rect'){
+                ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size * 0.6);
+            } else {
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size/2, 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+    }
+
+    function launchFirework(x, y){
+        for(let i = 0; i < 60; i++){
+            particles.push(new Particle(x, y, 'firework'));
+        }
+    }
+
+    function launchConfetti(){
+        const w = canvas.width;
+        for(let i = 0; i < 80; i++){
+            particles.push(new Particle(Math.random()*w, canvas.height + 10, 'confetti'));
+        }
+    }
+
+    function animate(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles = particles.filter(p => p.alpha > 0);
+        particles.forEach(p => { p.update(); p.draw(); });
+        if(particles.length > 0) animId = requestAnimationFrame(animate);
+        else { animId = null; ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    }
+
+    function startShow(){
+        const cx = canvas.width / 2;
+        launchFirework(cx, canvas.height * 0.35);
+        launchFirework(cx - 200, canvas.height * 0.3);
+        launchFirework(cx + 200, canvas.height * 0.3);
+        launchConfetti();
+        setTimeout(()=>{ launchFirework(cx - 100, canvas.height*0.25); launchFirework(cx + 100, canvas.height*0.25); }, 300);
+        setTimeout(()=>{ launchConfetti(); launchFirework(cx, canvas.height*0.2); }, 600);
+        if(!animId) animate();
+    }
+
+    const btn = document.getElementById('confettiBtn');
+    btn.addEventListener('click', startShow);
+    btn.addEventListener('mouseover', function(){ this.style.background = 'linear-gradient(135deg, rgba(249,212,35,0.3), rgba(255,78,80,0.3))'; this.style.transform = 'scale(1.05)'; this.style.boxShadow = '0 0 20px rgba(249,212,35,0.4)'; });
+    btn.addEventListener('mouseout', function(){ this.style.background = 'linear-gradient(135deg, rgba(249,212,35,0.15), rgba(255,78,80,0.15))'; this.style.transform = 'scale(1)'; this.style.boxShadow = 'none'; });
+})();
+</script>
+"""
+components.html(confetti_html, height=80)
+
 max_score = sorted_ai[0][1]
 lb_html = '<div class="leaderboard">'
 for idx, (ai_name, score) in enumerate(sorted_ai):
