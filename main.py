@@ -343,10 +343,11 @@ for idx in order:
     )
 st.markdown(podium_html, unsafe_allow_html=True)
 
-# 🎆 폭죽 버튼 (HTML)
-st.markdown("""
-<div style="text-align:center; margin: 1rem 0 0.5rem 0;">
-<button id="confettiBtn" onclick="if(window.__launchShow) window.__launchShow();" style="
+# 🎆 폭죽 효과 (버튼 + Canvas + JS 모두 iframe 안에서, Canvas만 parent에 주입)
+import streamlit.components.v1 as components
+confetti_js = """
+<div style="text-align:center; margin: 0; padding: 0.5rem 0;">
+<button id="confettiBtn" style="
     font-family: 'Orbitron', sans-serif;
     font-size: 1rem;
     font-weight: 700;
@@ -358,15 +359,8 @@ st.markdown("""
     cursor: pointer;
     transition: all 0.3s ease;
     letter-spacing: 1px;
-" onmouseover="this.style.background='linear-gradient(135deg, rgba(249,212,35,0.3), rgba(255,78,80,0.3))';this.style.transform='scale(1.05)';this.style.boxShadow='0 0 20px rgba(249,212,35,0.4)';"
-   onmouseout="this.style.background='linear-gradient(135deg, rgba(249,212,35,0.15), rgba(255,78,80,0.15))';this.style.transform='scale(1)';this.style.boxShadow='none';"
->🎆 CELEBRATE! 🎆</button>
+">🎆 CELEBRATE! 🎆</button>
 </div>
-""", unsafe_allow_html=True)
-
-# 🎆 폭죽 Canvas + JS (parent document에 주입)
-import streamlit.components.v1 as components
-confetti_js = """
 <script>
 (function(){
     const doc = window.parent.document;
@@ -474,17 +468,20 @@ confetti_js = """
         launchFirework(w*0.25, h*0.3);
         launchFirework(w*0.75, h*0.3);
         launchConfetti();
-        setTimeout(()=>{ launchFirework(w*0.35, h*0.25); launchFirework(w*0.65, h*0.25); launchConfetti(); }, 400);
-        setTimeout(()=>{ launchFirework(w*0.5, h*0.2); launchFirework(w*0.15, h*0.4); launchFirework(w*0.85, h*0.4); }, 800);
-        setTimeout(()=>{ launchConfetti(); launchFirework(w*0.4, h*0.15); launchFirework(w*0.6, h*0.15); }, 1200);
+        setTimeout(function(){ launchFirework(w*0.35, h*0.25); launchFirework(w*0.65, h*0.25); launchConfetti(); }, 400);
+        setTimeout(function(){ launchFirework(w*0.5, h*0.2); launchFirework(w*0.15, h*0.4); launchFirework(w*0.85, h*0.4); }, 800);
+        setTimeout(function(){ launchConfetti(); launchFirework(w*0.4, h*0.15); launchFirework(w*0.6, h*0.15); }, 1200);
         if(!animId) animate();
     }
 
-    window.parent.__launchShow = startShow;
+    var btn = document.getElementById('confettiBtn');
+    btn.addEventListener('click', startShow);
+    btn.addEventListener('mouseover', function(){ btn.style.background = 'linear-gradient(135deg, rgba(249,212,35,0.3), rgba(255,78,80,0.3))'; btn.style.transform = 'scale(1.05)'; btn.style.boxShadow = '0 0 20px rgba(249,212,35,0.4)'; });
+    btn.addEventListener('mouseout', function(){ btn.style.background = 'linear-gradient(135deg, rgba(249,212,35,0.15), rgba(255,78,80,0.15))'; btn.style.transform = 'scale(1)'; btn.style.boxShadow = 'none'; });
 })();
 </script>
 """
-components.html(confetti_js, height=0)
+components.html(confetti_js, height=60)
 
 max_score = sorted_ai[0][1]
 lb_html = '<div class="leaderboard">'
