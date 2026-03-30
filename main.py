@@ -261,6 +261,11 @@ RANK_COLS = ["1위", "2위", "3위"]
 total = len(df)
 
 COLORS = {"Claude": "#E07B39", "Gemini": "#4285F4", "ChatGPT": "#10A37F"}
+COLORS_RGBA_FILL = {
+    "Claude": "rgba(224,123,57,0.13)",
+    "Gemini": "rgba(66,133,244,0.13)",
+    "ChatGPT": "rgba(16,163,127,0.13)",
+}
 AI_EMOJI = {"Claude": "🟠", "Gemini": "🔵", "ChatGPT": "🟢"}
 SCHOOL_DOT = {"당곡고": "#6366F1", "수도여고": "#EC4899"}
 
@@ -426,7 +431,7 @@ with col_right:
         fig_radar.add_trace(go.Scatterpolar(
             r=vals, theta=cats,
             fill="toself",
-            fillcolor=COLORS[ai] + "22",
+            fillcolor=COLORS_RGBA_FILL[ai],
             line=dict(color=COLORS[ai], width=2.5),
             marker=dict(size=6, color=COLORS[ai]),
             name=ai,
